@@ -13,6 +13,26 @@ class HistoryController extends ChangeNotifier {
   bool isLoading = true;
   Calculation? lastDeleted;
 
+  String _query = '';
+  String get query => _query;
+
+  /// Строка поиска: ищем по названию и категории.
+  void setQuery(String q) {
+    final v = q.trim().toLowerCase();
+    if (v == _query) return;
+    _query = v;
+    notifyListeners();
+  }
+
+  /// То, что показываем на экране с учётом поиска.
+  List<Calculation> get visibleItems => _query.isEmpty
+      ? items
+      : items
+          .where((c) =>
+              c.displayTitle.toLowerCase().contains(_query) ||
+              c.categoryName.toLowerCase().contains(_query))
+          .toList();
+
   void init() {
     _repo.addListener(load);
     load();

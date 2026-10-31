@@ -18,7 +18,8 @@ import 'widgets/kitex_links_block.dart';
 /// Экран 3. Настройки.
 class SettingsScreen extends StatefulWidget {
   final SettingsController controller;
-  const SettingsScreen({super.key, required this.controller});
+  final bool embedded;
+  const SettingsScreen({super.key, required this.controller, this.embedded = false});
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
@@ -257,9 +258,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(AppStrings.settingsTitle.toUpperCase())),
-      body: ListenableBuilder(
+    final body = ListenableBuilder(
         listenable: c,
         builder: (context, _) {
           final s = c.settings;
@@ -326,7 +325,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ],
           );
         },
-      ),
+      );
+    if (widget.embedded) {
+      return Align(
+        alignment: Alignment.topCenter,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 720),
+          child: body,
+        ),
+      );
+    }
+    return Scaffold(
+      appBar: AppBar(title: Text(AppStrings.settingsTitle.toUpperCase())),
+      body: body,
     );
   }
 }

@@ -5,6 +5,7 @@ import 'package:share_plus/share_plus.dart';
 import '../../core/app_strings.dart';
 import '../../core/money_format.dart';
 import '../../core/number_parser.dart';
+import '../../core/platform_info.dart';
 import '../../data/models/category.dart';
 import '../common/kitex_logo.dart';
 import '../common/kx_button.dart';
@@ -19,7 +20,11 @@ import 'widgets/result_card.dart';
 /// Экран 1. Калькулятор. Только отображение, вся логика в CalcController.
 class CalcScreen extends StatefulWidget {
   final CalcController controller;
-  const CalcScreen({super.key, required this.controller});
+
+  /// В раскладке для ПК: без своей панели, поля слева, чек справа.
+  final bool embedded;
+
+  const CalcScreen({super.key, required this.controller, this.embedded = false});
 
   @override
   State<CalcScreen> createState() => _CalcScreenState();
@@ -109,6 +114,12 @@ class _CalcScreenState extends State<CalcScreen> {
       KxToast.show(context, AppStrings.enterPrice);
       return;
     }
+    if (isDesktopPlatform) {
+      await Clipboard.setData(ClipboardData(text: c.shareText()));
+      if (!mounted) return;
+      KxToast.show(context, AppStrings.copied);
+      return;
+    }
     await SharePlus.instance.share(ShareParams(text: c.shareText()));
   }
 
@@ -152,8 +163,148 @@ class _CalcScreenState extends State<CalcScreen> {
     );
   }
 
+  List<Widget> _inputFields() => [
+        KxTextField(
+          label: AppStrings.fieldPrice,
+          suffix: '¥',
+          controller: _price,
+          onChanged: c.setPrice,
+        ),
+        const SizedBox(height: 12),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: KxTextField(
+                label: AppStrings.fieldQty,
+                integerOnly: true,
+                controller: _qty,
+                onChanged: c.setQty,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: KxTextField(
+                label: AppStrings.fieldWeight,
+                suffix: 'кг',
+                controller: _weight,
+                onChanged: c.setWeight,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        _CategoryField(category: c.category, onTap: _pickCategory),
+        const SizedBox(height: 12),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: KxTextField(
+                label: AppStrings.fieldRate,
+                controller: _rate,
+                onChanged: c.setRate,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: KxTextField(
+                label: AppStrings.fieldCommission,
+                suffix: '%',
+                controller: _commission,
+                onChanged: c.setCommission,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: KxTextField(
+                label: AppStrings.fieldDelivery,
+                suffix: '₽/кг',
+                controller: _perKg,
+                onChanged: c.setPerKg,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: KxTextField(
+                label: AppStrings.fieldExtra,
+                suffix: '₽',
+                controller: _extra,
+                onChanged: c.setExtra,
+              ),
+            ),
+          ],
+        ),
+      ];
+
+  List<Widget> _resultBlock() => [
+        ResultCard(result: c.result),
+        const SizedBox(height: 16),
+        Row(
+          children: [
+            Expanded(
+              child: KxButton.primary(
+                label: AppStrings.save,
+                icon: Icons.bookmark_add_outlined,
+                onPressed: _onSave,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: KxButton.outline(
+                label: AppStrings.share,
+                icon: isDesktopPlatform ? Icons.copy : Icons.ios_share,
+                onPressed: _onShare,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        RateBar(
+          caption: c.rateCaption,
+          isLoading: c.isRefreshingRate,
+          canReset: c.rateEditedManually,
+          showRefresh: c.isAutoRate,
+          onRefresh: _onRefreshRate,
+          onReset: c.resetRateToDefault,
+        ),
+      ];
+
   @override
   Widget build(BuildContext context) {
+    if (widget.embedded) {
+      return ListenableBuilder(
+        listenable: c,
+        builder: (context, _) => SingleChildScrollView(
+          padding: const EdgeInsets.all(8),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                flex: 11,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: _inputFields(),
+                ),
+              ),
+              const SizedBox(width: 32),
+              Expanded(
+                flex: 10,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: _resultBlock(),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
     return Scaffold(
       appBar: AppBar(
         title: const Row(
@@ -177,113 +328,9 @@ class _CalcScreenState extends State<CalcScreen> {
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
           children: [
-            KxTextField(
-              label: AppStrings.fieldPrice,
-              suffix: '¥',
-              controller: _price,
-              onChanged: c.setPrice,
-            ),
-            const SizedBox(height: 12),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: KxTextField(
-                    label: AppStrings.fieldQty,
-                    integerOnly: true,
-                    controller: _qty,
-                    onChanged: c.setQty,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: KxTextField(
-                    label: AppStrings.fieldWeight,
-                    suffix: 'кг',
-                    controller: _weight,
-                    onChanged: c.setWeight,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            _CategoryField(category: c.category, onTap: _pickCategory),
-            const SizedBox(height: 12),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: KxTextField(
-                    label: AppStrings.fieldRate,
-                    controller: _rate,
-                    onChanged: c.setRate,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: KxTextField(
-                    label: AppStrings.fieldCommission,
-                    suffix: '%',
-                    controller: _commission,
-                    onChanged: c.setCommission,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: KxTextField(
-                    label: AppStrings.fieldDelivery,
-                    suffix: '₽/кг',
-                    controller: _perKg,
-                    onChanged: c.setPerKg,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: KxTextField(
-                    label: AppStrings.fieldExtra,
-                    suffix: '₽',
-                    controller: _extra,
-                    onChanged: c.setExtra,
-                  ),
-                ),
-              ],
-            ),
+            ..._inputFields(),
             const SizedBox(height: 20),
-            ResultCard(result: c.result),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: KxButton.primary(
-                    label: AppStrings.save,
-                    icon: Icons.bookmark_add_outlined,
-                    onPressed: _onSave,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: KxButton.outline(
-                    label: AppStrings.share,
-                    icon: Icons.ios_share,
-                    onPressed: _onShare,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            RateBar(
-              caption: c.rateCaption,
-              isLoading: c.isRefreshingRate,
-              canReset: c.rateEditedManually,
-              showRefresh: c.isAutoRate,
-              onRefresh: _onRefreshRate,
-              onReset: c.resetRateToDefault,
-            ),
+            ..._resultBlock(),
           ],
         ),
       ),

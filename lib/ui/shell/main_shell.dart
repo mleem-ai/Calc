@@ -6,8 +6,11 @@ import '../../data/models/calculation.dart';
 import '../calc/calc_screen.dart';
 import '../history/history_screen.dart';
 import '../settings/settings_screen.dart';
+import 'desktop_shell.dart';
 
-/// Нижняя навигация на 3 вкладки. Состояние вкладок сохраняется.
+/// Широкое окно (ПК) — раскладка [DesktopShell], узкое — нижняя навигация
+/// на 3 вкладки. Состояние вкладок сохраняется.
+const double kDesktopBreakpoint = 900;
 class MainShell extends StatefulWidget {
   final AppDeps deps;
   const MainShell({super.key, required this.deps});
@@ -29,6 +32,14 @@ class _MainShellState extends State<MainShell> {
 
   @override
   Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, box) => box.maxWidth >= kDesktopBreakpoint
+          ? DesktopShell(deps: widget.deps)
+          : _mobile(context),
+    );
+  }
+
+  Widget _mobile(BuildContext context) {
     final deps = widget.deps;
     return Scaffold(
       body: IndexedStack(

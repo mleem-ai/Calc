@@ -8,16 +8,21 @@ import '../../common/kx_button.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 
+/// Что выбрал пользователь в окне с деталями.
+enum HistoryAction { paste, delete }
+
 /// Плавающее окно снизу с деталями расчёта из истории.
-/// Закрывается с результатом true, если нажали «Вставить в калькулятор».
+/// Закрывается с [HistoryAction.paste] после «Вставить в калькулятор»
+/// и с [HistoryAction.delete] после «Удалить».
 class HistoryDetailSheet extends StatelessWidget {
   final Calculation item;
   const HistoryDetailSheet({super.key, required this.item});
 
-  static Future<bool?> show(BuildContext context, Calculation item) {
-    return showModalBottomSheet<bool>(
+  static Future<HistoryAction?> show(BuildContext context, Calculation item) {
+    return showModalBottomSheet<HistoryAction>(
       context: context,
       isScrollControlled: true,
+      constraints: const BoxConstraints(maxWidth: 560),
       useSafeArea: true,
       backgroundColor: Colors.transparent,
       elevation: 0,
@@ -99,8 +104,16 @@ class HistoryDetailSheet extends StatelessWidget {
               icon: Icons.south_west,
               onPressed: () {
                 HapticFeedback.lightImpact();
-                Navigator.pop(context, true);
+                Navigator.pop(context, HistoryAction.paste);
               },
+            ),
+            const SizedBox(height: 8),
+            TextButton(
+              onPressed: () => Navigator.pop(context, HistoryAction.delete),
+              child: Text(
+                AppStrings.delete.toUpperCase(),
+                style: AppTextStyles.label.copyWith(color: k.textSecondary),
+              ),
             ),
           ],
         ),

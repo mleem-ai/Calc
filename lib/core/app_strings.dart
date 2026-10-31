@@ -96,4 +96,16 @@ class AppStrings {
   static const String kitexTagline =
       'Инструмент, которым пользуется торговая сеть KITex';
   static const String linkFailed = 'Не удалось открыть ссылку';
+
+  // версия для ПК
+  static const String searchHint = 'Поиск по истории';
+  static const String nothingFound = 'Ничего не найдено';
+  static const String nothingFoundHint = 'Попробуйте другое слово';
+  static const String newCalc = 'Новый';
+  static const String sidebarRate = 'Курс';
+  static const String sidebarTariffs = 'Тарифы за кг';
+  static const String sidebarRecent = 'Последние расчёты';
+  static const String sidebarCommunities = 'Сообщества';
+  static const String sidebarEmpty = 'Пока пусто';
+  static const String copied = 'Расчёт скопирован';
 }
