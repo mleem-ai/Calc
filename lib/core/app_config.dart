@@ -8,7 +8,7 @@ class KitexLink {
 /// Все константы приложения в одном месте.
 class AppConfig {
   static const String appName = 'KITex Calc';
-  static const String appVersion = 'KITex Calc v1.0.0';
+  static const String appVersion = 'KITex Calc v1.0.1';
   static const String dbName = 'kitex_calc.db';
   static const int dbVersion = 1;
 
