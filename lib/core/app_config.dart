@@ -35,11 +35,13 @@ class AppConfig {
   static const String shareFooter = 'Рассчитано в KITex Calc';
   static const String shareSeparator = '➖➖➖➖➖';
 
-  /// Сообщества KITex. Впиши реальные ссылки на 4 сообщества, например:
-  /// KitexLink('KITex | Товары из Китая', 'https://t.me/ИМЯ_СООБЩЕСТВА'),
-  /// KitexLink('KITex Новости', 'https://t.me/ИМЯ_СООБЩЕСТВА'),
-  /// KitexLink('KITex Ассортимент', 'https://t.me/ИМЯ_СООБЩЕСТВА'),
-  /// KitexLink('KITex Цены', 'https://t.me/ИМЯ_СООБЩЕСТВА'),
-  /// KitexLink('Написать Майку', 'https://t.me/KITex_Mickey'),
-  static const List<KitexLink> kitexLinks = [];
+  /// Сообщества KITex.
+  /// ВНИМАНИЕ: сейчас это заглушки — замените на реальные ссылки перед публикацией.
+  static const List<KitexLink> kitexLinks = [
+    KitexLink('KITex | Товары из Китая', 'https://t.me/kitex'),
+    KitexLink('KITex Новости', 'https://t.me/kitex'),
+    KitexLink('KITex Ассортимент', 'https://t.me/kitex'),
+    KitexLink('KITex Цены', 'https://t.me/kitex'),
+    KitexLink('Написать Майку', 'https://t.me/KITex_Mickey'),
+  ];
 }
