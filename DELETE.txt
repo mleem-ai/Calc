@@ -1,6 +1,0 @@
-Эти файлы больше не нужны, их можно удалить из проекта:
-  lib/ui/common/whale_loader.dart
-  assets/brand/kitex_mark.png
-  assets/brand/kitex_full.png
-  assets/brand/icon_1024.png   (если есть)
-Кита в приложении больше нет, везде калькулятор.

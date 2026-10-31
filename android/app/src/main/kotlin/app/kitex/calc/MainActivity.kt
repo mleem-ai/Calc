@@ -1,4 +1,4 @@
-package com.example.kitex_calc
+package app.kitex.calc
 
 import io.flutter.embedding.android.FlutterActivity
 
