@@ -78,7 +78,21 @@ jobs:
           else
             echo "Секретов нет: APK подпишется отладочным ключом."
           fi
-      - run: flutter build apk --release
+      - name: Версия из тега
+        id: ver
+        shell: bash
+        run: |
+          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
+            echo "name=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+          else
+            echo "name=$(awk '/^version:/{print $2}' pubspec.yaml | cut -d+ -f1)" >> "$GITHUB_OUTPUT"
+          fi
+      # versionCode только растёт (номер запуска), иначе Android не поставит обновление поверх.
+      - run: flutter build apk --release --build-name=${{ steps.ver.outputs.name }} --build-number=${{ github.run_number }}
+      - name: Проверка подписи
+        run: |
+          APKSIGNER=$(ls "$ANDROID_HOME"/build-tools/*/apksigner | tail -1)
+          "$APKSIGNER" verify --print-certs build/app/outputs/flutter-apk/app-release.apk
       - run: cp build/app/outputs/flutter-apk/app-release.apk KITex-Calc-android.apk
       - uses: actions/upload-artifact@v4
         with: { name: android, path: KITex-Calc-android.apk }
