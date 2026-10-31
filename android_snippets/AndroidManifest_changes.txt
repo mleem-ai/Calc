@@ -1,0 +1,18 @@
+ФАЙЛ: android/app/src/main/AndroidManifest.xml
+
+1) Внутри <manifest ...>, ПЕРЕД тегом <application>, добавь:
+
+    <uses-permission android:name="android.permission.INTERNET"/>
+
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.VIEW"/>
+            <data android:scheme="https"/>
+        </intent>
+    </queries>
+
+2) В теге <application ...> замени название:
+
+    android:label="KITex Calc"
+
+(было android:label="kitex_calc")

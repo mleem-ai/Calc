@@ -1,0 +1,34 @@
+ФАЙЛ: android/app/build.gradle.kts
+
+1) В самый верх файла (над блоком plugins { ... }) добавь:
+
+import java.util.Properties
+import java.io.FileInputStream
+
+val keystoreProperties = Properties()
+val keystorePropertiesFile = rootProject.file("key.properties")
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+}
+
+2) Внутри блока android { ... } добавь блок signingConfigs (например, перед buildTypes):
+
+    signingConfigs {
+        create("release") {
+            keyAlias = keystoreProperties["keyAlias"] as String
+            keyPassword = keystoreProperties["keyPassword"] as String
+            storeFile = file(keystoreProperties["storeFile"] as String)
+            storePassword = keystoreProperties["storePassword"] as String
+        }
+    }
+
+3) В buildTypes { release { ... } } замени строку signingConfig на:
+
+        signingConfig = signingConfigs.getByName("release")
+
+4) В defaultConfig { ... } замени applicationId на:
+
+        applicationId = "app.kitex.calc"
+
+   Строку namespace = "app.kitex.kitex_calc" НЕ трогай (это внутренний пакет кода,
+   он не виден пользователям и не связан с applicationId).
